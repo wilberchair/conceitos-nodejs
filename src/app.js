@@ -48,7 +48,7 @@ app.get("/repositories", logRequests, (request, response) => {
 app.post("/repositories", (request, response) => {
   const { title, url, techs} = request.body;
 
-  const repository = {id: uuid(), title, url, techs};
+  const repository = {id: uuid(), title, url, techs, likes: 0};
 
   repositories.push(repository);
 
@@ -56,23 +56,22 @@ app.post("/repositories", (request, response) => {
 });
 
 app.put("/repositories/:id", (request, response) => {
-  const { title, url, techs} = request.body;
-
-  const repository = {
-    id: uuid(),
-    title,
-    url,
-    techs,
-    likes: 0
+  const { id } = request.params;
+  const { title, url, techs } = request.body;
+  const projectIndex = repositories.findIndex((project) => project.id === id);
+  if (projectIndex < 0) {
+    return response.status(400).json({ error: "repository wasn't found" });
   }
 
-  repositories.push(repository);
+  title ? (repositories[projectIndex].title = title) : title;
+  url ? (repositories[projectIndex].url = url) : url;
+  techs ? (repositories[projectIndex].techs = techs) : techs;
 
-  return response.json(repository);
+  return response.json(repositories[projectIndex]);
 });
 
 app.delete("/repositories/:id", (request, response) => {
-  const { id } = request.params;
+  const { id } = request.params; 
 
   const repoIndex = repositories.findIndex(repository => repository.id === id);
 
@@ -88,15 +87,15 @@ app.delete("/repositories/:id", (request, response) => {
 app.post("/repositories/:id/like", (request, response) => {
   const { id } = request.params;
 
-  const repository = repositories.find(repository => repository.id === id);
+  const repositoryIndex = repositories.findIndex(repository => repository.id === id);
 
-  if (!repository) {
-    return response.status(400).send();
+  if (repositoryIndex < 0) {
+    return res.status(400).json({ error: "repository wasn't found" });
   }
 
-  repository.likes += 1;
-
-  return response.json(repository);
+  repositories[repositoryIndex].likes += 1;
+  
+  return response.json(repositories[repositoryIndex]);
 });
 
 app.listen(3336, () => {
