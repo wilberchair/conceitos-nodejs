@@ -27,7 +27,7 @@ function validateRepoId(request, response, next) {
   const { id } = request.params;
 
   if (!isUuid(id)) {
-    return response.status(400).json({ error: 'invalid project ID.' })
+    return response.status(400).json({ error: 'invalid repositorie ID.' })
   }
 
   return next();
@@ -39,7 +39,7 @@ app.get("/repositories", logRequests, (request, response) => {
   const { repos } = request.query;
 
   const results = repos
-    ? repositories.filter(project => project.repos.includes(repos))
+    ? repositories.filter(repository => repository.repos.includes(repos))
     : repositories;
   
   return response.json(results);
@@ -48,13 +48,7 @@ app.get("/repositories", logRequests, (request, response) => {
 app.post("/repositories", (request, response) => {
   const { title, url, techs} = request.body;
 
-  const repository = {
-    id: uuid(),
-    title,
-    url,
-    techs,
-    likes: 0
-  }
+  const repository = {id: uuid(), title, url, techs};
 
   repositories.push(repository);
 
@@ -99,12 +93,13 @@ app.post("/repositories/:id/like", (request, response) => {
   if (!repository) {
     return response.status(400).send();
   }
+
   repository.likes += 1;
 
   return response.json(repository);
 });
 
-app.listen(3333, () => {
+app.listen(3336, () => {
   console.log('🚀Back-end started!');
 });
 
